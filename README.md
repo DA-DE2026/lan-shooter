@@ -154,29 +154,29 @@ ping → summary.
 - **More teams** — bump `MAX_TEAMS` in `shared/src/constants.js`, add a
   preset color/name, and provide maps with `4` spawn tiles.
 
-## Android (Capacitor) notes
+## Android APK
 
-The client is Capacitor-ready: it never assumes `localhost` — players type
-the host's LAN IP on the connect screen, and the value persists.
+The Capacitor Android project lives in `client/android` (cleartext HTTP
+enabled for LAN play, landscape-locked for the twin-stick controls).
+Touch devices automatically get the twin-stick control layer.
+
+**Easiest: let CI build it.** Pushing a version tag (e.g. `v0.1.0`) runs the
+`Build Android APK` GitHub Actions workflow, which tests, builds and
+attaches `lan-shooter.apk` to a GitHub Release — no Android Studio needed.
+It can also be run manually from the Actions tab.
+
+**Local build** (requires Android Studio / SDK):
 
 ```bash
-cd client
-npm install @capacitor/core @capacitor/cli @capacitor/android
-npx cap init "LAN Shooter" com.example.lanshooter --web-dir dist
 npm run build
-npx cap add android
-npx cap sync
-npx cap open android   # build the APK in Android Studio
+cd client
+npx cap sync android
+cd android && ./gradlew assembleDebug
+# -> app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Android blocks cleartext HTTP by default; since the game talks plain HTTP on
-a LAN, enable it in the generated `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<application android:usesCleartextTraffic="true" ...>
-```
-
-Then install the APK on phones on the same Wi-Fi and connect to the host's
+Install the APK on phones on the same Wi-Fi (allow "unknown apps" when
+sideloading), start the server on the host PC, and connect to the host's
 IP as usual.
 
 ## Architecture notes
