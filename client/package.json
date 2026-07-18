@@ -8,10 +8,13 @@
     "preview": "vite preview --host"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
     "socket.io-client": "^4.8.1",
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.2",
     "vite": "^6.0.0"
   }
 }

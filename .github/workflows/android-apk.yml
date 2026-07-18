@@ -1,0 +1,68 @@
+# Builds the Android APK in the cloud — no local Android Studio needed.
+# Runs on every version tag (v*) and can be triggered manually from the
+# Actions tab. Tagged runs attach the APK to a GitHub Release; every run
+# also uploads it as a workflow artifact.
+
+name: Build Android APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write # create releases
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run server tests
+        run: npm test -w server
+
+      - name: Build web client
+        run: npm run build
+
+      - name: Sync Capacitor
+        working-directory: client
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: client/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: cp client/android/app/build/outputs/apk/debug/app-debug.apk lan-shooter.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lan-shooter-apk
+          path: lan-shooter.apk
+
+      - name: Attach APK to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: lan-shooter.apk
+          generate_release_notes: true

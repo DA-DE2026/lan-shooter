@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LAN Shooter</string>
+    <string name="title_activity_main">LAN Shooter</string>
+    <string name="package_name">com.brigada.lanshooter</string>
+    <string name="custom_url_scheme">com.brigada.lanshooter</string>
+</resources>

@@ -1,0 +1,9 @@
+{
+  "appId": "com.brigada.lanshooter",
+  "appName": "LAN Shooter",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}
