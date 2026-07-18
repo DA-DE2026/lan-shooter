@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+client/dist/
+
+# Capacitor Android build outputs (the android/ project itself IS committed
+# so CI can build the APK; only generated build state is ignored)
+client/android/app/build/
+client/android/build/
+client/android/.gradle/
+client/android/local.properties
+client/android/captures/
+
+# Logs / OS noise
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>LAN Shooter</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Phaser mounts its canvas here during a match -->
+    <div id="game-root"></div>
+
+    <!-- In-match HUD overlay (DOM keeps text crisp and layout easy) -->
+    <div id="hud" class="hidden">
+      <canvas id="minimap"></canvas>
+      <div id="hud-top">
+        <div id="hud-scores"></div>
+        <div id="hud-timer"></div>
+      </div>
+      <div id="killfeed"></div>
+      <div id="hud-bottom">
+        <div id="hud-health"><div id="hud-health-fill"></div><span id="hud-health-text"></span></div>
+        <div id="hud-weapon">
+          <div id="hud-weapon-name"></div>
+          <div id="hud-ammo"></div>
+          <div id="hud-reload"><div id="hud-reload-fill"></div></div>
+        </div>
+      </div>
+      <div id="respawn-overlay" class="hidden">
+        <h2>ELIMINATED</h2>
+        <p id="respawn-text"></p>
+        <p class="hint">Spectating — &larr;/&rarr; to switch teammate</p>
+      </div>
+      <div id="damage-flash"></div>
+      <div id="chat">
+        <div id="chat-log"></div>
+        <input id="chat-input" class="hidden" maxlength="200" autocomplete="off"
+               placeholder="Say something… (Enter to send, Esc to cancel)" />
+      </div>
+      <div id="controls-hint">WASD move &middot; Mouse aim/shoot &middot; R reload &middot; Q/1/2/3 weapon &middot; Enter chat &middot; Alt+Click or minimap-click ping &middot; Hide in bushes &middot; Grab weapon crates</div>
+
+      <!-- Twin-stick touch layer (visible on touch devices only) -->
+      <div id="touch-ui" class="hidden">
+        <div id="stick-move-zone" class="stick-zone"></div>
+        <div id="stick-aim-zone" class="stick-zone"></div>
+        <div id="stick-move" class="stick-base hidden"><div class="stick-knob"></div></div>
+        <div id="stick-aim" class="stick-base stick-fire hidden"><div class="stick-knob"></div></div>
+        <div id="touch-buttons">
+          <button id="btn-weapon" type="button">&#8646;</button>
+          <button id="btn-reload" type="button">R</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connect screen -->
+    <div id="screen-connect" class="screen">
+      <div class="panel">
+        <h1>LAN SHOOTER</h1>
+        <p class="subtitle">3D jungle warfare over your local network</p>
+        <label>Your name
+          <input id="connect-name" maxlength="16" placeholder="Player name" autocomplete="off" />
+        </label>
+        <label>Server address <span class="mini">(host's LAN IP:port)</span>
+          <input id="connect-address" placeholder="192.168.1.10:3000" autocomplete="off" />
+        </label>
+        <button id="connect-btn" class="primary">Connect</button>
+        <p id="connect-status" class="status"></p>
+      </div>
+    </div>
+
+    <!-- Lobby screen -->
+    <div id="screen-lobby" class="screen hidden">
+      <div class="lobby-wrap">
+        <header class="lobby-head">
+          <h1>LOBBY</h1>
+          <div id="lobby-role"></div>
+        </header>
+        <div class="lobby-main">
+          <div id="lobby-teams"></div>
+          <aside id="lobby-side">
+            <section id="host-panel">
+              <h3>Match settings <span id="settings-lock" class="mini"></span></h3>
+              <label>Teams
+                <select id="set-teamcount"><option value="2">2 teams</option><option value="3">3 teams</option></select>
+              </label>
+              <label>Map <select id="set-map"></select></label>
+              <label>Score limit <span class="mini">(0 = none)</span>
+                <input id="set-scorelimit" type="number" min="0" max="500" />
+              </label>
+              <label>Time limit, minutes <span class="mini">(0 = none)</span>
+                <input id="set-timelimit" type="number" min="0" max="180" />
+              </label>
+              <button id="add-bot-btn">+ Add bot</button>
+              <button id="start-btn" class="primary">Start match</button>
+            </section>
+            <section>
+              <h3>Your look</h3>
+              <div id="skin-picker"></div>
+            </section>
+          </aside>
+        </div>
+        <section id="lobby-chatbox">
+          <div id="lobby-chat-log"></div>
+          <form id="lobby-chat-form">
+            <input id="lobby-chat-input" maxlength="200" placeholder="Lobby chat…" autocomplete="off" />
+            <button type="submit">Send</button>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <!-- End-of-match summary screen -->
+    <div id="screen-summary" class="screen hidden">
+      <div class="panel wide">
+        <h1 id="summary-title">MATCH OVER</h1>
+        <p id="summary-reason" class="subtitle"></p>
+        <div id="summary-scores"></div>
+        <div id="summary-mvp"></div>
+        <table id="summary-table">
+          <thead><tr><th>Player</th><th>Team</th><th>Kills</th><th>Deaths</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="summary-actions"></div>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
