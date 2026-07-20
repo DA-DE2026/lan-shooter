@@ -1,5 +1,10 @@
 # Dependencies
 node_modules/
+# ...except the fake 'bridge' package fixture (server/test/mobile-bundle.test.js
+# resolves it via NODE_PATH to simulate the mobile Node runtime's injected module).
+!server/test/fixtures/mobile-bridge-shim/node_modules/
+!server/test/fixtures/mobile-bridge-shim/node_modules/bridge/
+!server/test/fixtures/mobile-bridge-shim/node_modules/bridge/**
 
 # Build outputs
 client/dist/
