@@ -22,6 +22,10 @@ import { touch, STICK_DEAD_ZONE, FIRE_THRESHOLD } from '../ui/touch.js';
 const MOVE_SEND_MS = 50;
 const CAM_HEIGHT = 620;   // camera rig: high angled follow view
 const CAM_BACK = 430;
+// Field-of-view steps for the zoom control: index 0 is the default (no
+// zoom) view; each press narrows the FOV further. Cycles back to 0 after
+// the 3rd zoomed-in step.
+const ZOOM_FOVS = [55, 46, 38, 30];
 const PROJ_HEIGHT = 32;   // gun height — projectiles fly at this y
 const LOOT_COLORS = { longshot: 0x9ad0ff, stinger: 0xffd27a };
 
@@ -102,6 +106,8 @@ export class Game3D {
     this.pickupMeshes = new Map(); // pickupId -> { group, box }
     for (const pickup of md.pickups ?? []) this.addPickup(pickup);
 
+    this.zoomIndex = 0;
+
     this.setupInput();
     this.setupNet();
 
@@ -109,6 +115,7 @@ export class Game3D {
     touch.setHandlers({
       onReload: () => { if (this.self.alive) emit(MSG.RELOAD); },
       onWeapon: () => this.cycleWeapon(),
+      onZoom: () => this.cycleZoom(),
     });
     touch.show();
 
@@ -177,6 +184,7 @@ export class Game3D {
       else if (e.code === 'Digit3' && this.self.special >= 0) this.setWeapon(this.self.special);
       else if (e.code === 'ArrowLeft') this.cycleSpectate(-1);
       else if (e.code === 'ArrowRight') this.cycleSpectate(1);
+      else if (e.code === 'KeyZ') this.cycleZoom();
     };
     this._onKeyUp = (e) => this.pressed.delete(e.code);
     this._onBlur = () => {
@@ -681,6 +689,13 @@ export class Game3D {
     const t = target.root.position;
     this.camera.position.set(t.x, CAM_HEIGHT, t.z + CAM_BACK);
     this.camera.lookAt(t.x, 20, t.z - 40);
+  }
+
+  /** Narrows the FOV one step (Z key / touch zoom button); wraps back to the default, wide view after the 3rd step. */
+  cycleZoom() {
+    this.zoomIndex = (this.zoomIndex + 1) % ZOOM_FOVS.length;
+    this.camera.fov = ZOOM_FOVS[this.zoomIndex];
+    this.camera.updateProjectionMatrix();
   }
 
   /** Living, connected teammates (and self) provide shared vision. */

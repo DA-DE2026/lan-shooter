@@ -86,6 +86,7 @@ export const touch = {
     };
     $('btn-reload').addEventListener('click', () => handlers.onReload?.());
     $('btn-weapon').addEventListener('click', () => handlers.onWeapon?.());
+    $('btn-zoom').addEventListener('click', () => handlers.onZoom?.());
   },
 
   /** The active match registers its actions here; cleared on destroy. */
