@@ -17,6 +17,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export function createGameServer() {
   const app = express();
 
+  // Lets the client discover this device's own LAN IPs — used by the
+  // Host button so the "share to join" address is a real reachable IP
+  // instead of "localhost" (which only works for this same device).
+  app.get('/api/host-info', (req, res) => {
+    res.json({ ips: lanAddresses(), port: req.socket.localPort });
+  });
+
   // Serve the production client build when it exists (npm run build at repo
   // root). During development the client runs on Vite instead.
   const clientDist = path.resolve(__dirname, '../../client/dist');
