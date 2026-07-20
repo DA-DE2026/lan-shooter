@@ -13,10 +13,14 @@ function fakeChannel() {
 
 test('startServerForBridge reports server-ready with the bound port', async () => {
   const channel = fakeChannel();
-  await startServerForBridge(channel, 0); // port 0 = OS picks a free port
-  assert.equal(channel.calls.length, 1);
-  assert.equal(channel.calls[0].event, 'server-ready');
-  assert.ok(channel.calls[0].payload.port > 0);
+  const server = await startServerForBridge(channel, 0); // port 0 = OS picks a free port
+  try {
+    assert.equal(channel.calls.length, 1);
+    assert.equal(channel.calls[0].event, 'server-ready');
+    assert.ok(channel.calls[0].payload.port > 0);
+  } finally {
+    await server.close();
+  }
 });
 
 test('startServerForBridge reports server-error on a bind failure', async () => {

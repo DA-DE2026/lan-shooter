@@ -10,9 +10,12 @@ import { DEFAULT_PORT } from '@lan-shooter/shared';
 
 export async function startServerForBridge(channel, port = DEFAULT_PORT) {
   try {
-    const boundPort = await createGameServer().listen(port);
+    const server = createGameServer();
+    const boundPort = await server.listen(port);
     channel.send('server-ready', { port: boundPort });
+    return server;
   } catch (err) {
     channel.send('server-error', { message: err.message });
+    return null;
   }
 }
