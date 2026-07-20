@@ -6,7 +6,7 @@
 import { $, normalizeAddress, cameraAvailable } from '../utils.js';
 import { scanForAddress } from './qrscan.js';
 import { embeddedServerAvailable, startEmbeddedServer, onBackgroundStateChange } from '../native/embeddedServer.js';
-import { advertiseLobby } from '../native/discovery.js';
+import { advertiseLobby, browseLobbies } from '../native/discovery.js';
 
 /** Is `host` a real LAN-reachable name, as opposed to a loopback/empty one? */
 function isRealNetworkHost(host) {
@@ -53,6 +53,30 @@ export function initConnect({ onSubmit }) {
     hostBtn.addEventListener('click', () => startHosted(true));
     soloBtn.addEventListener('click', () => startHosted(false));
   }
+
+  const lobbies = new Map(); // id -> {id, name, host, port}
+  const listEl = $('discovered-lobbies');
+
+  const renderLobbies = () => {
+    listEl.classList.toggle('hidden', lobbies.size === 0);
+    listEl.innerHTML = '';
+    for (const lobby of lobbies.values()) {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'lobby-card';
+      card.innerHTML = `<span>${lobby.name}</span><span class="mini">tap to join</span>`;
+      card.addEventListener('click', () => {
+        addrEl.value = `${lobby.host}:${lobby.port}`;
+        submit();
+      });
+      listEl.appendChild(card);
+    }
+  };
+
+  browseLobbies({
+    onFound: (lobby) => { lobbies.set(lobby.id, lobby); renderLobbies(); },
+    onLost: (id) => { lobbies.delete(id); renderLobbies(); },
+  });
 
   async function startHosted(shareable) {
     const name = nameEl.value.trim();

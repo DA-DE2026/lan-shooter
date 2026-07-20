@@ -52,6 +52,15 @@ button:disabled { opacity: .45; cursor: default; }
 .host-solo-row button { flex: 1; padding: 9px; }
 .connect-help { margin-top: 14px; font-size: 12px; color: #6f7893; line-height: 1.5; }
 .connect-help code { color: #aeb6c8; background: #12151d; padding: 1px 5px; border-radius: 4px; }
+#discovered-lobbies { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+.lobby-card {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; padding: 10px 14px; text-align: left;
+  background: #232837; border: 1px solid #333a4d; border-radius: 8px;
+  color: #e8eaf0; font-size: 14px; cursor: pointer;
+}
+.lobby-card:hover { background: #2b3244; }
+.lobby-card .mini { color: #8b93a7; }
 
 #address-row { display: flex; gap: 8px; align-items: stretch; }
 #address-row input { margin-top: 0; }
