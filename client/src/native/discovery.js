@@ -14,7 +14,15 @@ export function discoveryAvailable() {
 
 export async function advertiseLobby(name, port) {
   if (!discoveryAvailable()) return;
-  await LobbyDiscovery.advertise({ name, port });
+  try {
+    await LobbyDiscovery.advertise({ name, port });
+  } catch {
+    // Best-effort: advertising is a discovery convenience, not a
+    // requirement for hosting. If it fails (e.g. the player denied the
+    // Nearby Wi-Fi Devices permission), the embedded server the caller
+    // already started keeps running — other players just have to type
+    // the address instead of tapping a discovered lobby card.
+  }
 }
 
 export async function stopAdvertising() {

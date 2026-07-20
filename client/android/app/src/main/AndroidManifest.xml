@@ -43,4 +43,13 @@
     <!-- For the in-app "Scan QR" connect helper (getUserMedia in the WebView). -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- For LAN lobby discovery (NsdManager / mDNS) — LobbyDiscoveryPlugin. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Runtime permission required on Android 13+ (API 33+) for NSD calls.
+         neverForLocation: we don't use scan results to derive physical
+         location, only to advertise/discover LAN game lobbies. -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 </manifest>

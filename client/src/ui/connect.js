@@ -83,6 +83,10 @@ export function initConnect({ onSubmit }) {
   browseLobbies({
     onFound: (lobby) => { lobbies.set(lobby.id, lobby); renderLobbies(); },
     onLost: (id) => { lobbies.delete(id); renderLobbies(); },
+  }).catch(() => {
+    // Best-effort: if browsing can't start (e.g. permission denied), the
+    // discovered-lobbies list just stays empty — manual IP entry and QR
+    // scanning still work.
   });
 
   async function startHosted(shareable) {
