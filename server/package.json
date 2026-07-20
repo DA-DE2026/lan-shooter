@@ -4,8 +4,8 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
+    "dev": "node --watch src/cli.js",
+    "start": "node src/cli.js",
     "test": "node --test"
   },
   "dependencies": {

@@ -5,10 +5,9 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { Server } from 'socket.io';
-import qrcodeTerminal from 'qrcode-terminal';
 import { DEFAULT_PORT } from '@lan-shooter/shared';
 import { Match } from './Match.js';
 
@@ -70,7 +69,7 @@ export function createGameServer() {
 }
 
 /** All non-internal IPv4 addresses, so the host knows what IP to share. */
-function lanAddresses() {
+export function lanAddresses() {
   const out = [];
   for (const ifaces of Object.values(os.networkInterfaces())) {
     for (const iface of ifaces ?? []) {
@@ -78,26 +77,4 @@ function lanAddresses() {
     }
   }
   return out;
-}
-
-// Run directly (not imported by a test): start listening.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const port = Number(process.env.PORT) || DEFAULT_PORT;
-  const server = createGameServer();
-  server.listen(port).then(() => {
-    console.log(`\nLAN Shooter server listening on port ${port}`);
-    const ips = lanAddresses();
-    if (ips.length) {
-      console.log('Players on your LAN can connect to:');
-      for (const ip of ips) console.log(`  ${ip}:${port}`);
-      // A scannable QR is the easiest way for a phone to join: point its
-      // camera at this terminal (browser play) or use the app's "Scan QR"
-      // button (works in the installed APK). Encodes the first LAN address.
-      console.log('\nOr scan this QR code with a phone camera:\n');
-      qrcodeTerminal.generate(`http://${ips[0]}:${port}`, { small: true });
-    } else {
-      console.log('No LAN IPv4 address detected — check your network connection.');
-    }
-    console.log();
-  });
 }
