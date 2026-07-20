@@ -5,5 +5,9 @@
 // installed.
 import { channel } from 'bridge';
 import { startServerForBridge } from './mobileBootstrap.js';
+import { DEFAULT_PORT } from '@lan-shooter/shared';
 
-startServerForBridge(channel);
+// See cli.js for why this can't be `Number(process.env.PORT) || DEFAULT_PORT`
+// — that would silently discard an explicit PORT=0 (ephemeral port) request.
+const port = process.env.PORT !== undefined ? Number(process.env.PORT) : DEFAULT_PORT;
+startServerForBridge(channel, port);
