@@ -4,6 +4,7 @@
 export const state = {
   selfId: null,
   name: '',
+  connectedAddress: null, // "host:port" this device used to connect — shareable
   lobby: null,     // last LOBBY payload from the server
   match: null,     // last MATCH_STATE payload
   summary: null,   // last MATCH_ENDED payload

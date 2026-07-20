@@ -60,12 +60,28 @@
         <label>Your name
           <input id="connect-name" maxlength="16" placeholder="Player name" autocomplete="off" />
         </label>
-        <label>Server address <span class="mini">(host's LAN IP:port)</span>
-          <input id="connect-address" placeholder="192.168.1.10:3000" autocomplete="off" />
+        <label>Server address <span class="mini">(ask the host, or scan their QR)</span>
+          <div id="address-row">
+            <input id="connect-address" placeholder="e.g. 192.168.1.10:3000" autocomplete="off"
+                   inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" />
+            <button id="scan-qr-btn" type="button" class="hidden" title="Scan host's QR code">&#9678;</button>
+          </div>
         </label>
         <button id="connect-btn" class="primary">Connect</button>
         <p id="connect-status" class="status"></p>
+        <p class="connect-help">
+          The host's terminal shows a QR code and address when the server
+          starts. No port? We'll try <code>:3000</code> automatically.
+        </p>
       </div>
+    </div>
+
+    <!-- Camera overlay for in-app QR scanning -->
+    <div id="qr-overlay" class="hidden">
+      <video id="qr-video" autoplay playsinline muted></video>
+      <div class="qr-frame"></div>
+      <p class="qr-hint">Point the camera at the host's QR code</p>
+      <button id="qr-cancel" type="button">Cancel</button>
     </div>
 
     <!-- Lobby screen -->
@@ -74,6 +90,7 @@
         <header class="lobby-head">
           <h1>LOBBY</h1>
           <div id="lobby-role"></div>
+          <div id="lobby-address" class="hidden"></div>
         </header>
         <div class="lobby-main">
           <div id="lobby-teams"></div>

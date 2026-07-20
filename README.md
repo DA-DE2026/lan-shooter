@@ -100,14 +100,40 @@ npm start
 ### Playing over LAN
 
 1. The **host machine** runs `npm run build` then `npm start`.
-   The server prints its LAN IPs on startup, e.g. `192.168.1.10:3000`.
-2. Everyone else opens `http://192.168.1.10:3000` in a browser
-   (same Wi-Fi/network), enters a name and that same address, and connects.
+   The server prints its LAN IP (e.g. `192.168.1.10:3000`) **and a QR code**
+   in the terminal.
+2. Everyone else connects to that same address, same Wi-Fi/network — see
+   "Connecting on mobile" below for the easiest way.
 3. First player to connect is the **host** and controls match settings.
    If the host leaves, the next connected player inherits host powers.
+   Once in the lobby, the host's screen shows **"Share to join: `<address>`"**
+   so it's easy to read out to the room.
 
 > Windows may prompt to allow Node.js through the firewall — allow it on
 > private networks, or other machines won't reach the server.
+
+### Connecting on mobile
+
+Typing a `192.168.x.x:3000` address on a phone keyboard is the single most
+annoying part of a LAN party, so there are three ways in, easiest first:
+
+1. **Scan the QR code.** The host's terminal prints one at startup. Point
+   any phone camera at it — for a **browser** player this opens the
+   address directly; on the **connect screen** (browser or the installed
+   APK) there's also a small ⊚ **"Scan QR"** button next to the address
+   field that scans it with the in-game camera view and fills the field
+   for you. (That button only appears when scanning will actually work —
+   it needs a secure context, which the installed app always has; a plain
+   `http://` page in a mobile browser usually won't show it, so use the
+   phone's regular camera app there instead.)
+2. **Just type the IP, skip the port.** The address field defaults to
+   `:3000` automatically if you don't type a port — `192.168.1.10` alone
+   is enough.
+3. **Read it off another connected teammate's lobby screen** — the "Share
+   to join" address shown there is exactly the string to type.
+
+The name and address you last used are remembered (`localStorage`), so
+reconnecting later on the same phone is just tapping Connect.
 
 ### Controls
 
@@ -157,8 +183,9 @@ ping → summary.
 ## Android APK
 
 The Capacitor Android project lives in `client/android` (cleartext HTTP
-enabled for LAN play, landscape-locked for the twin-stick controls).
-Touch devices automatically get the twin-stick control layer.
+enabled for LAN play, landscape-locked for the twin-stick controls, camera
+permission declared for the connect screen's QR scanner). Touch devices
+automatically get the twin-stick control layer.
 
 **Easiest: let CI build it.** Pushing a version tag (e.g. `v0.1.0`) runs the
 `Build Android APK` GitHub Actions workflow, which tests, builds and

@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import express from 'express';
 import { Server } from 'socket.io';
+import qrcodeTerminal from 'qrcode-terminal';
 import { DEFAULT_PORT } from '@lan-shooter/shared';
 import { Match } from './Match.js';
 
@@ -80,6 +81,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (ips.length) {
       console.log('Players on your LAN can connect to:');
       for (const ip of ips) console.log(`  ${ip}:${port}`);
+      // A scannable QR is the easiest way for a phone to join: point its
+      // camera at this terminal (browser play) or use the app's "Scan QR"
+      // button (works in the installed APK). Encodes the first LAN address.
+      console.log('\nOr scan this QR code with a phone camera:\n');
+      qrcodeTerminal.generate(`http://${ips[0]}:${port}`, { small: true });
     } else {
       console.log('No LAN IPv4 address detected — check your network connection.');
     }

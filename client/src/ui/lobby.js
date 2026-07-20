@@ -42,6 +42,16 @@ export function renderLobby() {
     ? 'You are the host — configure the match and press Start.'
     : `Waiting for the host to start. (${lobby.players.length} player${lobby.players.length === 1 ? '' : 's'} in lobby)`;
 
+  // Show whatever address this device used to connect, so it's easy to
+  // read aloud or copy for teammates who are still trying to join.
+  const addrEl = $('lobby-address');
+  if (state.connectedAddress) {
+    addrEl.classList.remove('hidden');
+    addrEl.innerHTML = `Share to join: <b>${state.connectedAddress}</b>`;
+  } else {
+    addrEl.classList.add('hidden');
+  }
+
   renderTeams(lobby, host);
   renderHostPanel(lobby, host);
   renderSkinPicker(lobby);

@@ -1,23 +1,52 @@
-// Connect screen: player name + host LAN address entry.
+// Connect screen: player name + host LAN address entry. This is the single
+// biggest friction point on mobile, so it gets extra help: a smart (never
+// misleading) default, a mobile-friendly keyboard, automatic ":3000" when
+// the port is omitted, and an optional camera QR scan button.
 
-import { $ } from '../utils.js';
+import { $, normalizeAddress, cameraAvailable } from '../utils.js';
+import { scanForAddress } from './qrscan.js';
+
+/** Is `host` a real LAN-reachable name, as opposed to a loopback/empty one? */
+function isRealNetworkHost(host) {
+  return !!host && host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('[');
+}
 
 export function initConnect({ onSubmit }) {
   const nameEl = $('connect-name');
   const addrEl = $('connect-address');
   const btn = $('connect-btn');
+  const scanBtn = $('scan-qr-btn');
 
-  // Remember last-used values; default the address to wherever this page
-  // was served from (on LAN that's already the host's IP).
+  // Remember last-used values. Only auto-fill the address from the page's
+  // own origin when that's a real LAN hostname (i.e. this page was loaded
+  // as http://192.168.x.x:3000 on the LAN) — never fall back to a fake
+  // placeholder IP or to "localhost", both of which look plausible but
+  // silently fail to connect from another device.
   nameEl.value = localStorage.getItem('lanshooter.name') ?? '';
-  addrEl.value = localStorage.getItem('lanshooter.address')
-    ?? `${window.location.hostname || '192.168.1.10'}:3000`;
+  const savedAddress = localStorage.getItem('lanshooter.address');
+  if (savedAddress) {
+    addrEl.value = savedAddress;
+  } else if (isRealNetworkHost(window.location.hostname)) {
+    addrEl.value = `${window.location.hostname}:3000`;
+  }
+
+  if (cameraAvailable()) {
+    scanBtn.classList.remove('hidden');
+    scanBtn.addEventListener('click', async () => {
+      const address = await scanForAddress();
+      if (address) {
+        addrEl.value = address;
+        setStatus('Scanned! Review and press Connect.');
+      }
+    });
+  }
 
   const submit = () => {
     const name = nameEl.value.trim();
-    const address = addrEl.value.trim();
+    const address = normalizeAddress(addrEl.value);
     if (!name) return setStatus('Enter a name first.');
     if (!address) return setStatus('Enter the host’s address, e.g. 192.168.1.10:3000');
+    addrEl.value = address;
     localStorage.setItem('lanshooter.name', name);
     localStorage.setItem('lanshooter.address', address);
     onSubmit({ name, address });

@@ -14,6 +14,30 @@ export function formatTime(ms) {
 }
 
 /**
+ * Clean up a user-typed or QR-scanned server address into "host:port".
+ * Strips a pasted "http://" prefix, trailing slash/whitespace, and fills in
+ * the default port when the user only typed an IP — the single biggest
+ * source of "it won't connect" on mobile is forgetting ":3000".
+ */
+export function normalizeAddress(raw) {
+  let a = raw.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+  if (a && !a.includes(':')) a += ':3000';
+  return a;
+}
+
+/**
+ * True when this page can plausibly use the camera (getUserMedia needs a
+ * "secure context" — https, or the app's own localhost-equivalent origin;
+ * a plain http://192.168.x.x LAN page never qualifies). Used to hide the
+ * "Scan QR" button instead of showing one that silently fails.
+ */
+export function cameraAvailable() {
+  return window.isSecureContext
+    && !!navigator.mediaDevices?.getUserMedia
+    && typeof window.BarcodeDetector !== 'undefined';
+}
+
+/**
  * Persistent random session token. Identifies this browser/device to the
  * server so a dropped connection can rejoin the same match slot.
  * (crypto.randomUUID is unavailable on insecure http:// LAN origins,

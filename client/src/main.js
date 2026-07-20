@@ -14,6 +14,7 @@ import { startGame, destroyGame, activeScene } from './game/boot.js';
 
 initConnect({ onSubmit: ({ name, address }) => {
   state.name = name;
+  state.connectedAddress = address;
   setStatus('Connecting…');
   wireSocket(connect(address, name));
 } });
