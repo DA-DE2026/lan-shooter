@@ -3,6 +3,7 @@ node_modules/
 
 # Build outputs
 client/dist/
+client/public/nodejs/main.js
 
 # Capacitor Android build outputs (the android/ project itself IS committed
 # so CI can build the APK; only generated build state is ignored)

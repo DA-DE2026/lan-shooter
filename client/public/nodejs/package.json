@@ -1,0 +1,5 @@
+{
+  "name": "lan-shooter-embedded-server",
+  "private": true,
+  "main": "main.js"
+}
