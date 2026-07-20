@@ -48,6 +48,8 @@ button.primary {
 button.primary:hover { background: #4070de; }
 button:disabled { opacity: .45; cursor: default; }
 .status { margin-top: 12px; font-size: 13px; color: #e0a34d; min-height: 18px; }
+.host-solo-row { display: flex; gap: 8px; margin-top: 10px; }
+.host-solo-row button { flex: 1; padding: 9px; }
 .connect-help { margin-top: 14px; font-size: 12px; color: #6f7893; line-height: 1.5; }
 .connect-help code { color: #aeb6c8; background: #12151d; padding: 1px 5px; border-radius: 4px; }
 

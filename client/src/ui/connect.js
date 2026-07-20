@@ -5,6 +5,7 @@
 
 import { $, normalizeAddress, cameraAvailable } from '../utils.js';
 import { scanForAddress } from './qrscan.js';
+import { embeddedServerAvailable, startEmbeddedServer } from '../native/embeddedServer.js';
 
 /** Is `host` a real LAN-reachable name, as opposed to a loopback/empty one? */
 function isRealNetworkHost(host) {
@@ -39,6 +40,45 @@ export function initConnect({ onSubmit }) {
         setStatus('Scanned! Review and press Connect.');
       }
     });
+  }
+
+  const hostBtn = $('host-btn');
+  const soloBtn = $('solo-btn');
+  if (!embeddedServerAvailable()) {
+    hostBtn.disabled = true;
+    soloBtn.disabled = true;
+    hostBtn.title = soloBtn.title = 'Only available in the installed app';
+  } else {
+    hostBtn.addEventListener('click', () => startHosted(true));
+    soloBtn.addEventListener('click', () => startHosted(false));
+  }
+
+  async function startHosted(shareable) {
+    const name = nameEl.value.trim();
+    if (!name) return setStatus('Enter a name first.');
+    setStatus('Starting local server…');
+    hostBtn.disabled = true;
+    soloBtn.disabled = true;
+    try {
+      const port = await startEmbeddedServer();
+      let address = `localhost:${port}`;
+      if (shareable) {
+        try {
+          const res = await fetch(`http://localhost:${port}/api/host-info`);
+          const info = await res.json();
+          if (info.ips?.[0]) address = `${info.ips[0]}:${port}`;
+        } catch {
+          // Fall back to localhost — still works for this device; the
+          // lobby's "Share to join" banner just won't show a real LAN IP.
+        }
+      }
+      localStorage.setItem('lanshooter.name', name);
+      onSubmit({ name, address });
+    } catch (err) {
+      setStatus(err.message || 'Could not start the local server.');
+      hostBtn.disabled = false;
+      soloBtn.disabled = false;
+    }
   }
 
   const submit = () => {
