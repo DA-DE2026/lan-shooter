@@ -4,6 +4,20 @@ Date: 2026-07-20. Goal: a single APK install that can host a match (or play
 solo against bots) with no PC and no separate server process — while never
 breaking the existing PC-hosted flow.
 
+## Correction (post-approval)
+
+The plugin identified during design-time research (`nodejs-mobile-capacitor`)
+turned out to be superseded by a different, actively-maintained one:
+**`capacitor-nodejs`** (hampoelz/Capacitor-NodeJS), which supports
+Capacitor v8 (matching this project) and is what the rest of this doc now
+assumes throughout. Its own README states it is *"no longer recommended
+for new projects"* (EOL Node 18.20 runtime, unmaintained dependencies,
+suggests migrating to Tauri) — a real risk, accepted deliberately for this
+project's scope (a personal/small-group LAN tool, not an app-store product
+with a long support tail). It also does **not** ship a foreground service
+for background survival, contrary to this doc's original assumption — see
+the corrected "Foreground service" note below.
+
 ## Why embed Node instead of anything else
 
 A WebView (what the current app's UI runs in) can only be a network
@@ -77,11 +91,14 @@ present (browser/dev mode).
   discovery sub-project adds a live list on top of this screen later;
   nothing here blocks on that.
 
-**Foreground service** — while `embeddedServer` is running, a persistent
-notification ("LAN Shooter is hosting a match") keeps the process alive in
-the background. Implemented via the nodejs-mobile plugin's own foreground
-service support (it ships one for exactly this reason) rather than a
-custom native service.
+**Backgrounding (corrected)** — `capacitor-nodejs` does not provide a
+foreground service, and building a correct custom one (notification
+channels, `startForeground()` version differences, permissions) is real
+native Android work with real risk of subtle bugs I can't verify without
+a device. Rather than attempt that blind, the plugin's `onPause`/`onResume`
+bridge events drive a visible in-app banner while hosting: "Keep this app
+open — backgrounding it may end the match for everyone." This is an
+honest, low-risk mitigation, not a fix; documented as a known limitation.
 
 ## Data flow
 
