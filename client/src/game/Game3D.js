@@ -35,8 +35,15 @@ export class Game3D {
     this.map = MAPS[md.settings.mapId];
 
     // --- renderer / scene / camera ---
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Touch devices (phones/tablets) render at a lower internal resolution
+    // and skip MSAA — a modest "zoom" that trades a little sharpness for
+    // meaningfully fewer shaded pixels per frame, since this scene (shadow
+    // mapping + tone mapping) is GPU-heavy for typical mobile chips. The
+    // canvas itself still fills the full screen either way; only the
+    // resolution it's rendered at (then upscaled) changes. Desktop keeps
+    // full DPI + antialiasing.
+    this.renderer = new THREE.WebGLRenderer({ antialias: !touch.enabled });
+    this.renderer.setPixelRatio(touch.enabled ? Math.min(window.devicePixelRatio, 1) : Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
