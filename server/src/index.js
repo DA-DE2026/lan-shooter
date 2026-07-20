@@ -45,8 +45,10 @@ export function createGameServer() {
     io,
     match,
     listen(port = DEFAULT_PORT) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
+        httpServer.once('error', reject);
         httpServer.listen(port, '0.0.0.0', () => {
+          httpServer.removeListener('error', reject);
           match.start();
           resolve(httpServer.address().port);
         });
