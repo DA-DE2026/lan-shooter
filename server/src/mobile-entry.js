@@ -3,7 +3,7 @@
 // injected by that runtime at execution time — it is not a real npm
 // package, so it's marked external in the esbuild config rather than
 // installed.
-import { channel } from 'bridge';
+import { channel, onPause, onResume } from 'bridge';
 import { startServerForBridge } from './mobileBootstrap.js';
 import { DEFAULT_PORT } from '@lan-shooter/shared';
 
@@ -11,3 +11,10 @@ import { DEFAULT_PORT } from '@lan-shooter/shared';
 // — that would silently discard an explicit PORT=0 (ephemeral port) request.
 const port = process.env.PORT !== undefined ? Number(process.env.PORT) : DEFAULT_PORT;
 startServerForBridge(channel, port);
+
+// onPause/onResume fire over the native APP_CHANNEL, which the webview's
+// NodeJS.addListener() cannot see (it only observes EVENT_CHANNEL, the
+// channel `channel.send()` above writes to). Re-send them over that
+// channel so embeddedServer.js's onBackgroundStateChange actually fires.
+onPause(() => channel.send('pause'));
+onResume(() => channel.send('resume'));

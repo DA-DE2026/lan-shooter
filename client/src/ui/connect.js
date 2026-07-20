@@ -38,7 +38,7 @@ export function initConnect({ onSubmit }) {
       const address = await scanForAddress();
       if (address) {
         addrEl.value = address;
-        setStatus('Scanned! Review and press Connect.');
+        setStatus('Scanned! Review and press Join.');
       }
     });
   }
@@ -64,7 +64,14 @@ export function initConnect({ onSubmit }) {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'lobby-card';
-      card.innerHTML = `<span>${lobby.name}</span><span class="mini">tap to join</span>`;
+      // lobby.name comes from a remote device's mDNS advertisement, so it's
+      // attacker-controlled — build the card with real nodes, never innerHTML.
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = lobby.name;
+      const hintSpan = document.createElement('span');
+      hintSpan.className = 'mini';
+      hintSpan.textContent = 'tap to join';
+      card.append(nameSpan, hintSpan);
       card.addEventListener('click', () => {
         addrEl.value = `${lobby.host}:${lobby.port}`;
         submit();

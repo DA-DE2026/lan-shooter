@@ -32,4 +32,7 @@ server.listen(port).then((boundPort) => {
     console.log('No LAN IPv4 address detected — check your network connection.');
   }
   console.log();
+}).catch((err) => {
+  console.error(`\nCouldn't start the server on port ${port}: ${err.message}`);
+  process.exitCode = 1;
 });

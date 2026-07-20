@@ -30,13 +30,14 @@ export async function startEmbeddedServer() {
     // installed app, gated by the check above.
     const { NodeJS } = await import('capacitor-nodejs');
 
-    await NodeJS.start();
-
     const port = await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Timed out waiting for the local server to start.'));
       }, 15000);
 
+      // Listeners must be registered before start() — otherwise a
+      // fast-booting embedded server could emit server-ready/server-error
+      // before anything is listening, and we'd wait out the full timeout.
       NodeJS.addListener('server-ready', (event) => {
         clearTimeout(timeout);
         resolve(event.args[0].port);
@@ -45,13 +46,23 @@ export async function startEmbeddedServer() {
         clearTimeout(timeout);
         reject(new Error(event.args[0]?.message ?? 'The local server failed to start.'));
       });
+
+      NodeJS.start().catch((err) => {
+        clearTimeout(timeout);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      });
     });
 
     NodeJS.addListener('pause', () => backgroundListeners.forEach((cb) => cb(true)));
     NodeJS.addListener('resume', () => backgroundListeners.forEach((cb) => cb(false)));
 
     return port;
-  })();
+  })().catch((err) => {
+    // Let a failed/timed-out attempt be retried instead of permanently
+    // caching a rejected promise (which would require an app reload).
+    startPromise = null;
+    throw err;
+  });
 
   return startPromise;
 }
