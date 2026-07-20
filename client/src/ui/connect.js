@@ -5,7 +5,7 @@
 
 import { $, normalizeAddress, cameraAvailable } from '../utils.js';
 import { scanForAddress } from './qrscan.js';
-import { embeddedServerAvailable, startEmbeddedServer } from '../native/embeddedServer.js';
+import { embeddedServerAvailable, startEmbeddedServer, onBackgroundStateChange } from '../native/embeddedServer.js';
 
 /** Is `host` a real LAN-reachable name, as opposed to a loopback/empty one? */
 function isRealNetworkHost(host) {
@@ -61,6 +61,9 @@ export function initConnect({ onSubmit }) {
     soloBtn.disabled = true;
     try {
       const port = await startEmbeddedServer();
+      onBackgroundStateChange((backgrounded) => {
+        $('background-warning').classList.toggle('hidden', !backgrounded);
+      });
       let address = `localhost:${port}`;
       if (shareable) {
         try {
