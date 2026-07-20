@@ -242,9 +242,21 @@ git commit -m "Add GET /api/host-info so clients can discover this device's LAN 
 - Produces: `startServerForBridge(channel, port = DEFAULT_PORT)` — an
   async function taking any object with a `send(event, payload)` method
   (dependency-injected so this is testable without the real, non-npm
-  `'bridge'` module the mobile runtime provides). Task 4's real entry
-  point is the only thing that imports the actual `'bridge'` module and
-  hands it to this function.
+  `'bridge'` module the mobile runtime provides), returning the created
+  server object (or `null` on failure) so tests can close it — see the
+  correction below. Task 4's real entry point is the only thing that
+  imports the actual `'bridge'` module and hands it to this function; it
+  ignores the return value, since in production the server is meant to
+  keep running.
+
+**Correction (found during execution):** the version below originally had
+`startServerForBridge` return nothing, and its success-path test never
+closed the server it started. `createGameServer().listen()` internally
+calls `match.start()`, which sets two `setInterval` timers — an unclosed
+server means those timers never clear, which keeps the Node process alive
+forever and hangs the *entire* `node --test` run (confirmed directly: a
+full-suite run hung past 60s after this task). Both the implementation and
+the test below are written with the fix already applied.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -266,10 +278,17 @@ function fakeChannel() {
 
 test('startServerForBridge reports server-ready with the bound port', async () => {
   const channel = fakeChannel();
-  await startServerForBridge(channel, 0); // port 0 = OS picks a free port
-  assert.equal(channel.calls.length, 1);
-  assert.equal(channel.calls[0].event, 'server-ready');
-  assert.ok(channel.calls[0].payload.port > 0);
+  // startServerForBridge's success path calls match.start() internally,
+  // which sets recurring setInterval timers — an unclosed server here
+  // hangs the whole `node --test` run forever, not just this file.
+  const server = await startServerForBridge(channel, 0); // port 0 = OS picks a free port
+  try {
+    assert.equal(channel.calls.length, 1);
+    assert.equal(channel.calls[0].event, 'server-ready');
+    assert.ok(channel.calls[0].payload.port > 0);
+  } finally {
+    await server.close();
+  }
 });
 
 test('startServerForBridge reports server-error on a bind failure', async () => {
@@ -308,11 +327,14 @@ import { createGameServer } from './index.js';
 import { DEFAULT_PORT } from '@lan-shooter/shared';
 
 export async function startServerForBridge(channel, port = DEFAULT_PORT) {
+  const server = createGameServer();
   try {
-    const boundPort = await createGameServer().listen(port);
+    const boundPort = await server.listen(port);
     channel.send('server-ready', { port: boundPort });
+    return server;
   } catch (err) {
     channel.send('server-error', { message: err.message });
+    return null;
   }
 }
 ```
