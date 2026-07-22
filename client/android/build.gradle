@@ -24,6 +24,30 @@ allprojects {
     }
 }
 
+// Force every native (CMake/NDK-built) library in the build — including
+// third-party Capacitor plugins like capacitor-nodejs's JNI bridge — to
+// link with 16KB-page-size support. Without this, a native library built
+// with only 4KB alignment fails to load on a device that enforces 16KB
+// memory pages: not a catchable Java exception, but a hard native crash
+// that takes the whole app down before any JVM-level handler can run.
+// This is what was crashing the app immediately on tapping Host or Solo
+// (both start capacitor-nodejs's embedded Node runtime) on at least one
+// real device. Applied in afterEvaluate so it's set after each
+// subproject's own build.gradle has already configured its own cppFlags,
+// guaranteeing this doesn't get silently overwritten.
+// See https://developer.android.com/guide/practices/page-sizes
+subprojects { subproject ->
+    subproject.afterEvaluate {
+        if (subproject.plugins.hasPlugin('com.android.library') || subproject.plugins.hasPlugin('com.android.application')) {
+            subproject.android.defaultConfig.externalNativeBuild {
+                cmake {
+                    cppFlags "-Wl,-z,max-page-size=16384"
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
