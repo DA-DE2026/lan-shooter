@@ -59,6 +59,16 @@
     <!-- Connect screen -->
     <div id="screen-connect" class="screen">
       <div class="panel">
+        <div id="crash-report" class="hidden">
+          <div class="crash-report-header">
+            <strong>The app closed unexpectedly last time</strong>
+            <div class="crash-report-actions">
+              <button id="crash-report-copy" type="button">Copy</button>
+              <button id="crash-report-dismiss" type="button">&times;</button>
+            </div>
+          </div>
+          <pre id="crash-report-text"></pre>
+        </div>
         <h1>LAN SHOOTER</h1>
         <p class="subtitle">3D jungle warfare over your local network</p>
         <label>Your name

@@ -277,3 +277,22 @@ button:disabled { opacity: .45; cursor: default; }
   background: #6e3140; color: #fff; text-align: center;
   padding: 8px 12px; font-size: 13px; font-weight: 600;
 }
+
+/* ---------- last-crash report (connect screen) ---------- */
+#crash-report {
+  background: #38222c; border: 1px solid #6e3140; border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 14px; text-align: left;
+}
+.crash-report-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; font-size: 13px; color: #f0c6cf;
+}
+.crash-report-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.crash-report-actions button {
+  padding: 3px 9px; font-size: 12px; background: #4a2530; border: 1px solid #6e3140;
+}
+#crash-report-text {
+  margin-top: 8px; max-height: 160px; overflow-y: auto; white-space: pre-wrap;
+  word-break: break-word; font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px; line-height: 1.4; color: #d8b9c0; user-select: text;
+}
