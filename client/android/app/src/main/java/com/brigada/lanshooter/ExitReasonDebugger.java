@@ -24,29 +24,36 @@ final class ExitReasonDebugger {
     private static final String KEY_LAST_SHOWN_TIMESTAMP = "lastShownTimestamp";
     private static final int MAX_TRACE_CHARS = 8000; // keep the dialog readable
 
-    /** Returns a human-readable report of the app's last abnormal exit, or null if there's nothing new to show. */
+    /**
+     * Returns a human-readable report of the app's last recorded exit, or
+     * null if there's nothing new to show. Deliberately reports EVERY new
+     * exit reason, not just ones this code guesses are "abnormal" — a
+     * previous version filtered to a reason-code whitelist and silently
+     * discarded anything not on it, which could have been hiding exactly
+     * the info this class exists to surface (e.g. if an OEM Android skin
+     * reports a native crash under a reason code this code didn't expect).
+     * Each entry is still labeled normal/worth-investigating so it's easy
+     * to skim, but nothing is thrown away.
+     */
     static String checkForNewCrash(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return null; // ApplicationExitInfo requires API 30+
+            return "ApplicationExitInfo requires Android 11+ (API 30) — not available on this OS version, so this method of seeing native crashes doesn't work here.";
         }
 
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ApplicationExitInfo> reasons = am.getHistoricalProcessExitReasons(null, 0, 5);
-        if (reasons.isEmpty()) return null;
+        if (reasons.isEmpty()) return "No exit history recorded by Android for this app yet.";
 
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         long lastShown = prefs.getLong(KEY_LAST_SHOWN_TIMESTAMP, 0);
 
         ApplicationExitInfo latest = reasons.get(0);
         if (latest.getTimestamp() <= lastShown) return null; // already shown this one
+        prefs.edit().putLong(KEY_LAST_SHOWN_TIMESTAMP, latest.getTimestamp()).apply();
 
         int reason = latest.getReason();
-        if (!isAbnormal(reason)) {
-            prefs.edit().putLong(KEY_LAST_SHOWN_TIMESTAMP, latest.getTimestamp()).apply();
-            return null;
-        }
-
         StringBuilder sb = new StringBuilder();
+        sb.append(isNormal(reason) ? "(normal exit) " : "(worth investigating) ");
         sb.append("Reason: ").append(reasonToString(reason)).append(" (code ").append(reason).append(")\n");
         sb.append("Status: ").append(latest.getStatus()).append('\n');
         String description = latest.getDescription();
@@ -60,19 +67,14 @@ final class ExitReasonDebugger {
             sb.append("\n--- Trace ---\n").append(trace);
         }
 
-        prefs.edit().putLong(KEY_LAST_SHOWN_TIMESTAMP, latest.getTimestamp()).apply();
         return sb.toString();
     }
 
-    private static boolean isAbnormal(int reason) {
-        return reason == ApplicationExitInfo.REASON_CRASH_NATIVE
-            || reason == ApplicationExitInfo.REASON_CRASH
-            || reason == ApplicationExitInfo.REASON_ANR
-            || reason == ApplicationExitInfo.REASON_SIGNALED
-            || reason == ApplicationExitInfo.REASON_LOW_MEMORY
-            || reason == ApplicationExitInfo.REASON_DEPENDENCY_DIED
-            || reason == ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE
-            || reason == ApplicationExitInfo.REASON_INITIALIZATION_FAILURE;
+    /** Only the exit reasons that are unambiguously not a crash — everything else gets surfaced. */
+    private static boolean isNormal(int reason) {
+        return reason == ApplicationExitInfo.REASON_USER_REQUESTED
+            || reason == ApplicationExitInfo.REASON_USER_STOPPED
+            || reason == ApplicationExitInfo.REASON_EXIT_SELF;
     }
 
     private static String readTrace(ApplicationExitInfo info) {
