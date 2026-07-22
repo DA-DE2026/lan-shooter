@@ -4,6 +4,7 @@
 // simply unavailable there — Join still works everywhere).
 
 import { Capacitor } from '@capacitor/core';
+import { logInfo } from '../debugLog.js';
 
 let startPromise = null;
 let backgroundListeners = [];
@@ -55,6 +56,17 @@ export async function startEmbeddedServer() {
 
     NodeJS.addListener('pause', () => backgroundListeners.forEach((cb) => cb(true)));
     NodeJS.addListener('resume', () => backgroundListeners.forEach((cb) => cb(false)));
+
+    // The 'server-error' listener registered above (inside the startup
+    // Promise) only matters for the *first* event — once that promise has
+    // settled, calling its resolve/reject again is a silent no-op, so any
+    // later error (e.g. an exception while handling a socket connection,
+    // now caught by mobile-entry.js's process-level handlers instead of
+    // crashing the app) would otherwise vanish with nowhere to show up.
+    // This second, permanent listener logs every one to the debug console.
+    NodeJS.addListener('server-error', (event) => {
+      logInfo(`Embedded server error (after startup): ${event.args[0]?.message ?? 'unknown'}`);
+    });
 
     return port;
   })().catch((err) => {

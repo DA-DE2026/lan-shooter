@@ -11,7 +11,7 @@ import { initLobby, renderLobby, addLobbyChat } from './ui/lobby.js';
 import { renderSummary } from './ui/summary.js';
 import { initHud, showHud, hideHud, addGameChat } from './ui/hud.js';
 import { startGame, destroyGame, activeScene } from './game/boot.js';
-import { startCapture, mountDebugConsole } from './debugLog.js';
+import { startCapture, mountDebugConsole, logInfo } from './debugLog.js';
 
 // As early as possible, so nothing that happens during the rest of this
 // file's setup is missed. For debugger purposes only.
@@ -52,11 +52,13 @@ function wireSocket(socket) {
   });
 
   socket.on(MSG.JOINED, ({ selfId }) => {
+    logInfo(`Received JOINED (selfId ${selfId})`);
     state.selfId = selfId;
     setStatus('');
   });
 
   socket.on(MSG.LOBBY, (payload) => {
+    logInfo(`Received LOBBY (state: ${payload.state})`);
     state.lobby = payload;
     if (payload.state === 'lobby') {
       // Everyone is (back) in the lobby.
@@ -101,5 +103,8 @@ function wireSocket(socket) {
     setStatus(message || 'You were removed from the match.');
   });
 
-  socket.on(MSG.ERROR_MSG, (message) => toast(message, { error: true }));
+  socket.on(MSG.ERROR_MSG, (message) => {
+    logInfo(`Received ERROR_MSG: ${message}`);
+    toast(message, { error: true });
+  });
 }
