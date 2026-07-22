@@ -6,6 +6,7 @@
 // lives in attachSocket(); the handler methods below are plain functions so
 // they can be unit-tested without real sockets.
 
+import { randomUUID } from 'node:crypto';
 import {
   MSG, MAPS, mapList, mapsForTeamCount, WEAPONS, TEAM_PRESETS, TEAM_COLOR_CHOICES,
   SKIN_COLORS, MAX_TEAM_SIZE, MIN_TEAMS, MAX_TEAMS, TICK_RATE, SNAPSHOT_RATE,
@@ -196,7 +197,7 @@ export class Match {
   uniquePlayerId() {
     let id;
     do {
-      id = crypto.randomUUID().slice(0, 8);
+      id = randomUUID().slice(0, 8);
     } while ([...this.players.values()].some((p) => p.id === id));
     return id;
   }
