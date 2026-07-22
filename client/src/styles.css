@@ -17,7 +17,7 @@ body {
 /* ---------- full-screen UI screens ---------- */
 .screen {
   position: absolute; inset: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
   background: radial-gradient(ellipse at 50% 30%, #1d2230 0%, #14161c 70%);
   overflow-y: auto;
 }
@@ -278,21 +278,28 @@ button:disabled { opacity: .45; cursor: default; }
   padding: 8px 12px; font-size: 13px; font-weight: 600;
 }
 
-/* ---------- last-crash report (connect screen) ---------- */
-#crash-report {
-  background: #38222c; border: 1px solid #6e3140; border-radius: 8px;
-  padding: 10px 12px; margin-bottom: 14px; text-align: left;
+/* ---------- debug console (connect screen — debugger purposes only) ---------- */
+#debug-console {
+  background: #1b1f2a; border: 1px solid #2c3242; border-radius: 12px;
+  width: 320px; max-width: 92vw; max-height: 80vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
 }
-.crash-report-header {
+.debug-console-header {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; font-size: 13px; color: #f0c6cf;
+  gap: 8px; padding: 12px 14px; border-bottom: 1px solid #2c3242;
+  font-size: 13px; color: #aeb6c8; flex-shrink: 0;
 }
-.crash-report-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.crash-report-actions button {
-  padding: 3px 9px; font-size: 12px; background: #4a2530; border: 1px solid #6e3140;
+.debug-console-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.debug-console-actions button {
+  padding: 3px 9px; font-size: 12px; background: #262c3b; border: 1px solid #333a4d;
 }
-#crash-report-text {
-  margin-top: 8px; max-height: 160px; overflow-y: auto; white-space: pre-wrap;
+#debug-console-text {
+  margin: 0; padding: 10px 14px; overflow-y: auto; white-space: pre-wrap;
   word-break: break-word; font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 11px; line-height: 1.4; color: #d8b9c0; user-select: text;
+  font-size: 11px; line-height: 1.5; color: #b7bfd1; user-select: text;
+}
+#debug-console-toggle {
+  position: absolute; right: 16px; bottom: 16px; z-index: 21;
+  padding: 8px 14px; font-size: 12px; background: #262c3b; border: 1px solid #333a4d;
 }

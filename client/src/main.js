@@ -11,6 +11,12 @@ import { initLobby, renderLobby, addLobbyChat } from './ui/lobby.js';
 import { renderSummary } from './ui/summary.js';
 import { initHud, showHud, hideHud, addGameChat } from './ui/hud.js';
 import { startGame, destroyGame, activeScene } from './game/boot.js';
+import { startCapture, mountDebugConsole } from './debugLog.js';
+
+// As early as possible, so nothing that happens during the rest of this
+// file's setup is missed. For debugger purposes only.
+startCapture();
+mountDebugConsole();
 
 initConnect({ onSubmit: ({ name, address }) => {
   state.name = name;

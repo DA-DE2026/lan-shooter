@@ -8,6 +8,7 @@ import { scanForAddress } from './qrscan.js';
 import { embeddedServerAvailable, startEmbeddedServer, onBackgroundStateChange } from '../native/embeddedServer.js';
 import { advertiseLobby, browseLobbies } from '../native/discovery.js';
 import { getLastCrashReport } from '../native/diagnostics.js';
+import { logInfo } from '../debugLog.js';
 
 /** Is `host` a real LAN-reachable name, as opposed to a loopback/empty one? */
 function isRealNetworkHost(host) {
@@ -20,28 +21,12 @@ export function initConnect({ onSubmit }) {
   const btn = $('connect-btn');
   const scanBtn = $('scan-qr-btn');
 
-  // Show the reason the app closed unexpectedly last time, if any — see
-  // native/diagnostics.js. A native AlertDialog was tried first but proved
-  // unreliable on at least one real device; showing it here, in the
-  // already-working webview, is more robust.
-  const crashReportEl = $('crash-report');
+  // Feed the reason the app closed unexpectedly last time (if any) into
+  // the debug console (see native/diagnostics.js and debugLog.js) — a
+  // native AlertDialog was tried first but proved unreliable on at least
+  // one real device.
   getLastCrashReport().then((report) => {
-    if (!report) return;
-    $('crash-report-text').textContent = report;
-    crashReportEl.classList.remove('hidden');
-  });
-  $('crash-report-dismiss').addEventListener('click', () => crashReportEl.classList.add('hidden'));
-  $('crash-report-copy').addEventListener('click', async () => {
-    const copyBtn = $('crash-report-copy');
-    try {
-      await navigator.clipboard.writeText($('crash-report-text').textContent);
-      const original = copyBtn.textContent;
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => { copyBtn.textContent = original; }, 1500);
-    } catch {
-      // Clipboard access can fail (e.g. no secure context, permission
-      // denied) — the text is still readable/selectable in the pre either way.
-    }
+    if (report) logInfo(`App closed unexpectedly last time:\n${report}`);
   });
 
   // Remember last-used values. Only auto-fill the address from the page's

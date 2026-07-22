@@ -59,16 +59,6 @@
     <!-- Connect screen -->
     <div id="screen-connect" class="screen">
       <div class="panel">
-        <div id="crash-report" class="hidden">
-          <div class="crash-report-header">
-            <strong>The app closed unexpectedly last time</strong>
-            <div class="crash-report-actions">
-              <button id="crash-report-copy" type="button">Copy</button>
-              <button id="crash-report-dismiss" type="button">&times;</button>
-            </div>
-          </div>
-          <pre id="crash-report-text"></pre>
-        </div>
         <h1>LAN SHOOTER</h1>
         <p class="subtitle">3D jungle warfare over your local network</p>
         <label>Your name
@@ -93,6 +83,22 @@
           starts. No port? We'll try <code>:3000</code> automatically.
         </p>
       </div>
+
+      <!-- Debug console: for debugger purposes only. Shows JS errors,
+           warnings, and the reason the app closed last time (if any),
+           live — not just after a full crash. -->
+      <div id="debug-console">
+        <div class="debug-console-header">
+          <strong>Debug Log</strong>
+          <div class="debug-console-actions">
+            <button id="debug-console-copy" type="button">Copy</button>
+            <button id="debug-console-clear" type="button">Clear</button>
+            <button id="debug-console-hide" type="button">&times;</button>
+          </div>
+        </div>
+        <pre id="debug-console-text">(no errors yet)</pre>
+      </div>
+      <button id="debug-console-toggle" type="button" class="hidden">&#128030; Debug</button>
     </div>
 
     <!-- Camera overlay for in-app QR scanning -->
